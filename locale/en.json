@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Product skills",
+    "description": "Adds two product-management skills to every session's skill catalog. product-mindset (产品心法 v2.0.0) is a task router: it names the task in one sentence, then loads one workflow file and at most one template, covering product briefs, project diagnosis, PRDs, competitor and requirement research, five-level requirement breakdown, prioritisation (ICE/RRS), multi-role review and post-launch review. quick-prototype (快速原型 v4.3.0) builds single-file interactive HTML prototypes for web consoles, H5, native app, desktop, embedded/wearable and conference screens, and lays existing analysis out as a printable HTML report. Use them by typing / in the composer and choosing /product-mindset or /quick-prototype, or let the agent load one when a request matches its description. Skill bodies and their references/templates are read from this plugin on demand; only a loaded file enters the conversation, and the 207 KB of prototype templates stay on disk until used. Turning the plugin off removes both skills from every session immediately. The plugin makes no network requests, writes no files and registers no tools of its own.",
+    "detail": "docs/DETAIL.md"
+  }
+}
