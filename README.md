@@ -2,11 +2,11 @@
 
 把五个产品经理技能打成一个 DeepSeek Harness 插件，**装完直接说人话就能用**，不用敲 `/技能名`，也不用往 `~/.agents/skills` 里散装复制。
 
-| 技能 | 内容 | 运行时 |
+| 技能 | 一句话 | 运行时 |
 |---|---|---|
-| `product-mindset` | 产品心法 v2.0.0：方法论与文档路由器（Brief / 立项诊断 / PRD / 竞品调研 / 优先级 / 评审会 / 复盘），只加载 1 个工作流 + 至多 1 个模板 | 纯 Markdown |
+| `product-mindset` | 产品心法 v2.0.0：方法论与文档路由器，先判断意图，再只加载 1 个工作流 + 至多 1 个模板 | 纯 Markdown |
 | `quick-prototype` | 快速原型 v4.3.0：六种设备形态的单文件可交互 HTML 原型 + 可打印 HTML 报告 | 纯 Markdown |
-| `product-prototype-review` | 原型与业务功能说明六维校验（完整性 / 布局 / 功能逻辑 / 交互 / 创新 / 内容），输出 P0/P1/P2 评审报告 | 纯 Markdown |
+| `product-prototype-review` | 原型与业务功能说明的六维校验，输出 P0/P1/P2 评审报告 | 纯 Markdown |
 | `requirement-analysis` | 五级需求拆解（系统—模块—功能组—操作—规则）→ 带追溯、待确认项、问题汇总的 Excel | Python（`openpyxl`，DSH 自带） |
 | `axure-prd-docx` | Axure 原型 + 五级需求表 + 文档模板 → 带截图和「规则｜说明」表格的 DOCX 需求文档 | Node + 无头 Chrome（依赖已内置） |
 
@@ -21,7 +21,7 @@
 plugin_manager({ action: "install_bundle", target: "<本仓库目录>" })
 ```
 
-**方式二：GitHub（发给别人用，不用传文件）**
+**方式二：GitHub（发给同事用，不用传文件）**
 
 仓库：<https://github.com/ligl0325/dsh-product-mindset-prototype>
 
@@ -30,9 +30,6 @@ plugin_manager({ action: "install_bundle", target: "github:ligl0325/dsh-product-
 ```
 
 在 **Plugins → 添加插件** 里填 `github:ligl0325/dsh-product-mindset-prototype` 也可以。
-
-> 仓库名、包名、行 id 现在统一为 `dsh-product-mindset-prototype`。改名要同步这四处：
-> `package.json` 的 `name`、`cordis.patch.yml` 的行 `name`、`index.js` 的插件名与 provider 名、以及本节的三条安装命令。
 
 **方式三：npm（可选，需要你的 npm 账号）**
 
@@ -43,21 +40,129 @@ plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototyp
 
 装完后**开一个新会话**，或者直接在输入框敲 `/` 看命令菜单里有没有这五个技能。
 
-## 用法：直接说人话
+## 场景一：这个方向到底能不能做
 
-DSH 的技能路由看的是每个技能 frontmatter 里的 `description`，跟技能名无关。正常说话就会命中：
+> 老板丢来一句「做个 AI 质检，下季度上线」，你不知道从哪开始。
 
-| 你说 | 命中 | 会发生什么 |
-|---|---|---|
-| 「写一份 B 端工单系统的轻量 PRD」「这个功能值不值得做」 | `product-mindset` | 读 `references/workflows/prd.md` + 一个 PRD 模板 |
-| 「调研一下竞品」「需求太多帮我砍范围」 | `product-mindset` | 竞品调研 / ICE、RRS |
-| 「做个会议室一体机的看板原型」「出个 demo 给我看」 | `quick-prototype` | 读 `templates-conference.md`，出单文件 HTML |
-| 「把这份调研结论排成网页报告」 | `quick-prototype` | 报告模式（`report-html.md`） |
-| 「检查这个原型」「原型和需求对不对得上」 | `product-prototype-review` | 六维校验 + P0/P1/P2 报告 |
-| 「把这份需求拆成五级表」「优化我这张需求分解表」 | `requirement-analysis` | 生成/优化 `.xlsx`，带追溯与待确认项 |
-| 「根据 Axure 原型出需求文档」「生成 Word 版 PRD」 | `axure-prd-docx` | 截图 → 内容模型 → DOCX |
+你怎么说：
 
-### 五个技能的边界（避免抢词）
+- 「这个功能值不值得做」「先出一页纸给我」
+- 「帮我做一次项目诊断，别急着拆需求」
+- 「用 ICE 排一下这几个需求的优先级」
+
+得到什么：一页纸产品 Brief（用户 / 痛点 / MVP 范围 / 最小验证方案 / 做或不做的结论）、项目诊断报告（干系人、需求确定性、关键风险、边界声明），
+以及 ✅做 / ⚠️验证后做 / ❌不做 的明确判断——**技能被强制要求先给结论再展开，缺证据的数字写"待验证"而不是编一个**。
+
+## 场景二：写 PRD
+
+> 需求定了，要一份能过评审的 PRD。
+
+你怎么说：
+
+- 「写一份 B 端工单系统的轻量 PRD」
+- 「按我们的完整 PRD 结构写，12 章那种」
+- 「把这份需求整理成 PRD，字段和验收标准要落到能开发」
+
+得到什么：按小需求→轻量、大需求→完整自动分级；落到角色、动作、字段、权限、公式、状态和验收标准，
+带红线清单（明确不做什么 + 理由）和风险登记册。
+
+## 场景三：竞品调研
+
+> 竞品刚上线一个新模块，要判断跟不跟。
+
+你怎么说：
+
+- 「调研一下这三家竞品，我要决定跟不跟」
+- 「把这家公司的功能拆开，告诉我哪些该抄、哪些不该抄」
+
+得到什么：公司画像 → 功能四级拆解（每个功能给 ✅采纳 / ⚠️简化 / ❌不做 的判断）→ 竞争格局 → 标杆案例的「痛点 → 方案 → 本项目需求」映射 → 明确的跟/不跟建议。
+
+## 场景四：拆需求，产出一张能评审的 Excel
+
+> 立项通过了，要把 P0 功能拆到可开发、可测试。
+
+你怎么说：
+
+- 「把这段需求拆成五级，出 Excel」
+- 「这是我拍的原型截图，帮我识别成需求再拆」
+- 「优化我这张需求分解表，标出哪些地方是猜的」
+
+得到什么：`需求分解` 表（编号 / 原始需求 / 一级…五级 / 状态 / 来源），状态列严格区分 **已确认 / 合理推断 / 待确认 / 建议**，
+每条待确认项写成一个具体问题；优化模式还会额外出 `需求优化对比` 和 `问题点汇总` 两张表，原表不被覆盖。
+
+> 边界：`requirement-analysis` 只管"拆成表"，方法论和 PRD 写作在 `product-mindset`。
+
+## 场景五：做个原型或大屏 demo 给领导看
+
+> 明天要演示，来不及做前端。
+
+你怎么说：
+
+- 「做一个会议室一体机的签到屏，深色高级感」
+- 「出一版 H5 移动端的报销申请流程 demo」
+- 「画个后台客户管理看板，要能点进去看详情」
+- 「把这个页面的 UI 稿做出来，用我们主色 #2D6BFF」
+
+得到什么：**单个 HTML 文件**，双击就能在浏览器打开，无 CDN 依赖；按设备形态自动选骨架（Web 后台 / H5 / 原生 APP / PC 桌面 / 嵌入式小屏 / 会议一体机），
+按业务领域自动选风格（企业管理偏瑞士风、工业偏 HUD 深色、医疗偏无障碍浅色……），并且强制过一遍"反 AI 审美"检查（不给你紫色渐变 + 三列等宽卡片那种一眼假的东西）。
+
+## 场景六：原型评审
+
+> 设计给的稿子要过评审，或者自己做的原型想先自查一遍。
+
+你怎么说：
+
+- 「检查这个原型，指出问题和优先级」
+- 「这个页面有什么问题」
+- 「原型和需求文档对不对得上」
+
+得到什么：六维校验（页面完整性 / 布局排版 / 功能逻辑 / 交互逻辑 / 设计创新 / 内容正确性）+ 业务说明歧义检查 + 一致性核对，
+输出固定结构报告：评估等级、问题总览表（每条带**位置**和 P0/P1/P2）、分维度优化建议、工时估算与分阶段计划。
+
+支持输入：效果图图片、HTML 原型文件或目录、Axure 导出目录。**只评审不改文件**。
+
+## 场景七：Axure 原型 → Word 需求文档
+
+> 原型定稿了，评审要一份带截图的正式需求文档。
+
+你怎么说：
+
+- 「根据这个 Axure 原型出需求文档」
+- 「用这份五级需求表和我们的模板，生成 Word 版 PRD」
+- 「给这份文档补上原型截图」
+
+得到什么：DOCX，结构是**页面标题 → 原型截图（含图注）→ 「规则｜说明」两列表格 → 子功能**，
+外加封面、修订记录、目录、需求列表和非功能需求章节；截图自动裁掉 Axure 右侧的"需求说明"面板，超长页面自动分段。
+
+> 需要三样东西：Axure 导出的 HTML 目录、一份五级需求拆解表（xlsx）、一份需求文档模板（docx）。
+> 依赖（`docx` / `jszip` / `xml-js`）已内置，不需要 `npm install`；截图用本机 Chrome 或 Edge。
+
+## 场景八：上线之后做复盘
+
+> 上线一个月，老板问效果。
+
+你怎么说：「做一次上线复盘」「这版上线带来了什么」
+
+得到什么：7 / 30 / 90 天价值验证框架——目标达成、实际数据、偏差原因、下一步动作，避免复盘写成流水账。
+
+## 串起来用：一条真实链路
+
+新需求从 0 到交付，五个技能可以接力，每一步都是普通对话：
+
+```text
+1. 「这个方向值不值得做」                  → 产品 Brief，先拿做/不做的结论
+2. 「立项了，先帮我诊断一下」              → 项目诊断，锁定范围与风险
+3. 「写一份轻量 PRD」                      → 分级 PRD，含字段与验收标准
+4. 「把 P0 拆成五级需求，出 Excel」         → 需求分解表，待确认项一次问清
+5. 「做个后台看板原型，能点进去看详情」      → 单文件 HTML，直接演示
+6. 「检查这个原型，和需求对不对得上」        → 评审报告，P0 问题先修
+7. 「根据原型和需求表出 Word 需求文档」      → 可评审/可归档的 DOCX
+8. 「上线一个月了，帮我复盘」               → 7/30/90 天价值验证
+```
+
+技能之间会自动按描述切换，不用手动点名；想强制指定某个技能时用 `/product-mindset`、`/quick-prototype` 这类命令。
+
+## 五个技能的边界（避免互相抢词）
 
 - `product-mindset` 只管**方法论与文档写法**，不产 Excel 表格、不评原型；
 - `requirement-analysis` **独占**「拆需求 / 五级需求 / 需求分解表 / Excel」；
@@ -65,7 +170,7 @@ DSH 的技能路由看的是每个技能 frontmatter 里的 `description`，跟�
 - `product-prototype-review` **只评审**原型与业务说明；
 - `axure-prd-docx` 负责**最终 Word 交付物**（截图 + 需求表格）。
 
-想改某个技能的命中范围：改它 `SKILL.md` 顶部的 `description`，保存后下一次请求就按新词路由（插件监听文件变化，见「维护」）。
+想改某个技能的命中范围：改它 `SKILL.md` 顶部的 `description`（写用户会说的词），保存后下一次请求就按新词路由。
 
 ## 目录结构
 
@@ -92,7 +197,7 @@ dsh-product-mindset-prototype/
 - **技能目录在每次目录读取时从磁盘发现**（扫 `skills/*/SKILL.md`），加技能 = 丢一个文件夹，不用改代码；
 - 解析 frontmatter 得到 `name`/`description`，去掉 frontmatter 的正文交给模型，`resourceBase` 指向该技能目录，
   所以 `references/…`、`templates-*.md` 的相对引用照常可读；
-- **只用 Node 内置模块**，不依赖任何 npm 包（本地目录安装是 `link:`，从它自己的位置解析不到 `@deepseek-ai/*`）；
+- **只用 Node 内置模块**，不依赖任何 npm 包；
 - 监听 `skills/` 的文件变化并主动刷新技能目录：改描述、改正文下一次请求即生效；
 - provider 随插件行卸载：**停用插件 = 五个技能立刻从所有会话消失**；
 - rank 用 300（等同文件系统 custom 根）。rank 只在**同一层内**比较：项目 100 < runtime 250 < custom 300 < 用户根 400/500 < 内置 600。
@@ -101,66 +206,41 @@ dsh-product-mindset-prototype/
 
 DSH 的技能目录按「层」合并，**离 Agent 最近的层胜出，与 rank 无关**。
 `~/.agents/skills`、`~/.dsh/skills` 和项目 `.dsh/skills` 由 **Agent 预设自带的 skill provider** 扫描，
-属于比 Host 层更近的作用域，所以**这些目录里的同名技能会盖住插件版本**。
-
-- 装插件前先确认这些目录里没有同名副本；有的话先挪到别处备份，再装插件；
-- 想临时覆盖插件版本，把同名技能放进 `~/.agents/skills/<名字>/SKILL.md` 就行（这是 DSH 的正常语义，不是 bug）。
+属于比 Host 层更近的作用域，所以**这些目录里的同名技能会盖住插件版本**。装插件前先确认这些目录里没有同名副本。
 
 ## 脚本类技能的运行时
 
 - `requirement-analysis`：先调 `load_workspace_dependencies` 拿 `python` 绝对路径（自带 `openpyxl`），再跑
-  `scripts/requirement_workbook.py`。不要假设 `python` 在 PATH，也不要安装无关依赖。
+  `scripts/requirement_workbook.py`。不要假设 `python` 在 PATH。
 - `axure-prd-docx`：
   - Node 用 `load_workspace_dependencies` 返回的 `node`；
   - `docx` / `jszip` / `xml-js` 已内置在 `skills/axure-prd-docx/vendor/modules/`（约 3.7MB，已裁剪到运行必需文件），
     脚本会自动找到，**不需要 `npm install`**；
   - 截图需要本机 Chrome 或 Edge（`capture.js` 自动探测，可用 `CHROME_PATH` 强制指定）。
 
-## 自检
+## 自检与维护
 
 ```sh
 npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 ```
 
-- `validate.mjs`：manifest、patch 行、locale 的 `meta.title/description/detail`、详情页只含一张图、
-  图标合规、每个 skill 的 frontmatter（kebab-case `name` + `description`）、`SKILL.md` 里所有相对 Markdown 链接都有目标文件。
-- `smoke.mjs`：用假的 `ctx` 跑一遍 `apply()`，断言 provider 能列出/加载**五个**技能、
-  每个字段符合 DSH 技能注册表校验，并且五个技能的关键词路由词都还在（改描述把词改没了会直接报错）。
+- `validate.mjs`：manifest、patch 行、locale、图标、每个 skill 的 frontmatter 与相对链接是否都有目标文件。
+- `smoke.mjs`：用假 `ctx` 跑一遍 `apply()`，断言五个技能都能列出/加载、字段符合 DSH 注册表校验，
+  并且五个技能的关键词路由词还在（改描述把词改没了会直接报错）。
 
-## 维护
+维护要点：
 
-- **加技能**：在 `skills/` 下新建目录放 `SKILL.md`（+ 可选 references/assets/scripts），跑 `npm run check` 即可，代码不用动。
-- **改技能内容**：直接覆盖 Markdown，保存即生效。
-- **改命中范围**：只改 `SKILL.md` 顶部 frontmatter 的 `description`（写用户会说的词），`name` 不要动。
-  本包对上游描述做过关键词增强：产品心法 v2.0.0、快速原型 v4.3.0 的原描述里没有「需求文档 / demo / 线框图」这类词。
-- **改 `index.js`**：ESM 模块会被进程缓存，需要重启 DSH 或停用/启用插件才会加载新代码。
-- 改完把 `package.json` 的 `version` 加一，跑 `npm run check`。
+- **加技能**：`skills/` 下新建目录放 `SKILL.md`，跑 `npm run check`，代码不用动；
+- **改技能内容**：直接覆盖 Markdown，保存即生效；
+- **改命中范围**：只改 `SKILL.md` 顶部的 `description`；
+- **改 `index.js`**：ESM 模块会被进程缓存，需要重启 DSH 或停用/启用插件；
+- 改完把 `package.json` 的 `version` 加一。
 
-## 交付物与隐私
+## 已知限制
 
-- 本仓库不进版本控制的：`NOTES.local.md`（本机路径与备份位置）、`node_modules/`、`*.tgz`。
-- `axure-prd-docx` 的上游版本曾把同事机器的路径（`C:\Users\…`、`E:\SVN-…`）和某个真实客户项目的
-  `docspec.paxc.json` 写进技能里；本包已清掉这些内容，只留通用示例 `assets/docspec.example.json`。
-- `product-prototype-review` 的上游版本引用了 9 个不存在的规范/模板文件，本包把它重写成自包含版本。
-
-## 验证记录（2026-11-16，v2.0.0）
-
-- `install_bundle` 返回 `application: applied`，`include:product-mindset-prototype` 行 `fiberPhase: active`；
-- 技能目录出现五个技能，描述与 `SKILL.md` 一致；
-- 编辑 `SKILL.md` 的 `description` 后，无需重启即刷新（watcher 生效，实测）；
-- `pnpm pack` 产物含全部技能文件与 `vendor/modules`；
-- **未端到端验证**：`axure-prd-docx` 的截图→DOCX 全流程（缺真实的 Axure 原型目录与模板 docx）、
-  `requirement-analysis` 的真实需求输入（只验证了脚本与依赖可用）；Plugins 面板的图标/详情页渲染。
-
-## 没打进包的东西
-
-源目录里这些不属于技能运行时，已剔除：
-
-- `ai-marketing-assistant.html`、`quick-prototype-skill-report.html`（原型/报告的交付物，正文未引用）
-- `产品心法报告.html`、`重构实施计划.md`（开发过程产物）
-- `scripts/validate_package.py`（技能作者自己的包校验脚本，本仓库用 `tools/validate.mjs` 代替）
-- `requirement-analysis/agents/openai.yaml`（其他客户端的 agent 清单，DSH 不读）
-- `axure-prd-docx/assets/docspec.paxc.json`（真实客户项目内容，换成通用示例）
+- `axure-prd-docx` 的「截图 → 内容模型 → DOCX」全流程尚未在真实 Axure 工程上做过端到端验收，
+  目前验证到的是脚本与内置依赖可正常出文档；
+- 五个技能都依赖模型按描述选技能，描述写得含糊就会选偏——命中不准时优先改 `description`。
 
 ## 许可
 
