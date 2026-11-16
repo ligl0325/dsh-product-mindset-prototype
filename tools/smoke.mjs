@@ -38,10 +38,16 @@ assert.equal(provider.name, PROVIDER_NAME)
 const observation = await provider.list({})
 const candidates = Array.isArray(observation) ? observation : observation.candidates
 assert.equal(Array.isArray(observation) ? true : observation.complete, true, 'discovery must be complete')
-assert.equal(candidates.length, 2, `expected two skills, got ${candidates.length}`)
+assert.equal(candidates.length, 5, `expected five skills, got ${candidates.length}`)
 
 const names = candidates.map(candidate => candidate.name).sort()
-assert.deepEqual(names, ['product-mindset', 'quick-prototype'])
+assert.deepEqual(names, [
+  'axure-prd-docx',
+  'product-mindset',
+  'product-prototype-review',
+  'quick-prototype',
+  'requirement-analysis',
+])
 
 for (const candidate of candidates) {
   assert.match(candidate.name, /^[a-z0-9]+(?:-[a-z0-9]+)*$/)
@@ -69,17 +75,28 @@ for (const candidate of candidates) {
   }
 }
 
-const mindset = candidates.find(candidate => candidate.name === 'product-mindset')
-const prototype = candidates.find(candidate => candidate.name === 'quick-prototype')
+const byName = name => candidates.find(candidate => candidate.name === name)
+const mindset = byName('product-mindset')
+const prototype = byName('quick-prototype')
+const review = byName('product-prototype-review')
+const analysis = byName('requirement-analysis')
+const axure = byName('axure-prd-docx')
 assert.match(prototype.description, /报告/, 'the shipped quick-prototype must be v4.3.0 (report mode)')
 
 // Keyword routing: this catalog text is what makes the model load a skill by
-// itself instead of asking the user to type the skill name.
-for (const keyword of ['PRD', '需求', '拆需求', '立项', '竞品', '优先级', '复盘']) {
-  assert.ok(mindset.description.includes(keyword), `product-mindset description must mention "${keyword}"`)
-}
-for (const keyword of ['原型', 'demo', '线框图', 'mockup', '大屏', '报告']) {
-  assert.ok(prototype.description.includes(keyword), `quick-prototype description must mention "${keyword}"`)
+// itself instead of asking the user to type the skill name, and it is what keeps
+// the five skills from stealing each other's requests.
+const expectations = [
+  [mindset, ['PRD', '立项', '竞品', '优先级']],
+  [prototype, ['原型', 'demo', '线框图', '大屏']],
+  [review, ['校验', '评审', '一致性']],
+  [analysis, ['五级', 'Excel', '需求']],
+  [axure, ['Axure', 'DOCX']],
+]
+for (const [candidate, keywords] of expectations) {
+  for (const keyword of keywords) {
+    assert.ok(candidate.description.includes(keyword), `${candidate.name} description must mention "${keyword}"`)
+  }
 }
 
 assert.ok(disposers.length > 0, 'apply() must watch the shipped skill files')

@@ -2,12 +2,14 @@
  * dsh-product-mindset-prototype — 产品技能包 / product management skill pack.
  *
  * Skill-only, host-only plugin: it registers no model tools and no client
- * modules. Its whole surface is the two Markdown skills under ./skills:
+ * modules. Its whole surface is the Markdown skills under ./skills, discovered
+ * from disk on every catalog read:
  *
- *   skills/product-mindset/   产品心法 v2.0.0 — a task router that names the
- *                             task, then loads one workflow plus one template.
- *   skills/quick-prototype/   快速原型 v4.3.0 — single-file interactive HTML
- *                             prototypes for six device forms, plus HTML reports.
+ *   product-mindset         产品心法 v2.0.0 — methodology and document router
+ *   quick-prototype         快速原型 v4.3.0 — single-file HTML prototypes and reports
+ *   product-prototype-review                 原型与业务说明校验
+ *   requirement-analysis                     五级需求拆解 → Excel
+ *   axure-prd-docx                           Axure 原型 → DOCX 需求文档
  *
  * The plugin registers its own `ctx.skills` provider instead of mounting
  * `@deepseek-ai/dsh-skill-filesystem`, because a bundle installed from a local
@@ -15,13 +17,12 @@
  * its own location. Everything here uses Node built-ins only, so the same code
  * works for a linked directory, a GitHub install and an npm install.
  *
- * Rank 300 equals a filesystem `custom` skill root: it outranks the user roots
- * (~/.dsh/skills, ~/.agents/skills) and is still overridden by project roots,
- * so a project can pin its own copy of either skill.
+ * Rank 300 equals a filesystem `custom` skill root: the agent-preset provider
+ * still wins for same-named skills in project and user roots.
  */
 
-import { watch } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { readdirSync, watch } from 'node:fs'
+import { readdir, readFile } from 'node:fs/promises'
 import { join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -42,10 +43,20 @@ export const RANK = 300
 /** The bundled skills directory: one subdirectory per skill, each with SKILL.md. */
 export const SKILLS_DIR = fileURLToPath(new URL('./skills/', import.meta.url))
 
-/** Shipped skills, in the order they are listed. */
-export const SKILL_DIRECTORIES = ['product-mindset', 'quick-prototype']
-
 const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+/**
+ * Skill directories are discovered from disk on every catalog read, so adding a
+ * skill is copying a folder with a SKILL.md into ./skills — no code change.
+ * @returns {Promise<string[]>} sorted skill directory names.
+ */
+export async function discoverSkillDirectories() {
+  const entries = await readdir(SKILLS_DIR, { withFileTypes: true })
+  return entries
+    .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+    .map(entry => entry.name)
+    .sort()
+}
 
 /**
  * Parse the YAML frontmatter the two shipped skills use: single-line `key: value`
@@ -132,7 +143,14 @@ export function apply(ctx) {
       async list(options) {
         const candidates = []
         let complete = true
-        for (const directory of SKILL_DIRECTORIES) {
+        let directories
+        try {
+          directories = await discoverSkillDirectories()
+        } catch (error) {
+          warnOnce('skills-root', `cannot read ${SKILLS_DIR}: ${errorMessage(error)}`)
+          return { candidates, complete: false }
+        }
+        for (const directory of directories) {
           try {
             const { path, skill } = await readSkill(directory, options.signal)
             reported.delete(directory)
@@ -149,10 +167,13 @@ export function apply(ctx) {
             })
           } catch (error) {
             if (options.signal?.aborted === true) throw error
+            if (persistent(error)) {
+              // A directory without SKILL.md is simply not a skill.
+              reported.delete(directory)
+              continue
+            }
             complete = false
-            const message = `${directory} is unavailable: ${errorMessage(error)}`
-            warnOnce(directory, message)
-            if (persistent(error)) control.invalidate()
+            warnOnce(directory, `${directory} is unavailable: ${errorMessage(error)}`)
           }
         }
         return complete ? candidates : { candidates, complete }
@@ -201,13 +222,27 @@ function watchSkillFiles(ctx, invalidate) {
       timer = setTimeout(invalidate, 150)
       timer.unref?.()
     }
-    for (const directory of SKILL_DIRECTORIES) {
+    const open = (target, recursive) => {
+      const watcher = watch(target, { persistent: false, recursive }, notify)
+      watcher.on('error', () => {})
+      watchers.push(watcher)
+    }
+    try {
+      open(SKILLS_DIR, true)
+    } catch {
+      // Recursive watching is unavailable on this platform; watch the root and
+      // each skill directory instead, accepting manual refreshes for new skills.
       try {
-        const watcher = watch(join(SKILLS_DIR, directory), { persistent: false }, notify)
-        watcher.on('error', () => {})
-        watchers.push(watcher)
+        open(SKILLS_DIR, false)
       } catch (error) {
-        ctx.logger?.warn(`product-mindset-prototype: cannot watch ${directory} (${errorMessage(error)})`)
+        ctx.logger?.warn(`product-mindset-prototype: cannot watch ${SKILLS_DIR} (${errorMessage(error)})`)
+      }
+      for (const directory of discoverSync()) {
+        try {
+          open(join(SKILLS_DIR, directory), false)
+        } catch {
+          // A skill directory that vanished before the watcher opened needs none.
+        }
       }
     }
     return () => {
@@ -221,6 +256,16 @@ function watchSkillFiles(ctx, invalidate) {
       }
     }
   }, 'product-mindset-prototype skill files')
+}
+
+function discoverSync() {
+  try {
+    return readdirSync(SKILLS_DIR, { withFileTypes: true })
+      .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+      .map(entry => entry.name)
+  } catch {
+    return []
+  }
 }
 
 function persistent(error) {

@@ -1,0 +1,27 @@
+{
+  "name": "axure-prd-docx",
+  "version": "1.0.0",
+  "private": true,
+  "description": "从 Axure 原型 + 需求拆解表 + 需求文档模板生成带原型截图与需求说明表格的 DOCX 需求文档",
+  "main": "scripts/build_docx.js",
+  "bin": {
+    "axure-prd-capture": "scripts/capture.js",
+    "axure-prd-build": "scripts/build_docx.js",
+    "axure-prd-inputs": "scripts/read_inputs.js",
+    "axure-prd-port": "scripts/port.js"
+  },
+  "scripts": {
+    "capture": "node scripts/capture.js",
+    "build": "node scripts/build_docx.js",
+    "inputs": "node scripts/read_inputs.js",
+    "port": "node scripts/port.js"
+  },
+  "dependencies": {
+    "docx": "^9.7.1",
+    "jszip": "^3.10.2",
+    "xml-js": "^1.6.11"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

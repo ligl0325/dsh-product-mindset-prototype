@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "产品技能包",
-    "description": "给每个会话的技能目录加两个产品技能。product-mindset（产品心法 v2.0.0）是任务路由器：先用一句话判断任务意图，再只加载 1 个工作流 + 至多 1 个模板，覆盖产品 Brief、项目诊断、PRD、竞品与需求调研、五级需求拆解、优先级决策（ICE/RRS）、多方评审、上线复盘。quick-prototype（快速原型 v4.3.0）生成六种设备形态的单文件可交互 HTML 原型（Web 后台、H5、原生 APP、PC 桌面、嵌入式/穿戴、会议一体机），也能把已有分析结论排版成可阅读、可打印的 HTML 报告。用法：在输入框输入 / 从命令菜单选 /product-mindset 或 /quick-prototype，或在请求命中描述时由模型自动加载。技能正文和它引用的 references、templates 都按需从本插件读取，只有真正加载的文件才进会话上下文，207 KB 原型模板不在未使用时占用上下文。停用插件后两个技能立即从所有会话消失。插件不联网、不写盘、不自带任何工具。",
+    "description": "把五个产品技能打成一个插件。product-mindset（产品心法 v2.0.0）：方法论与文档路由器，覆盖产品 Brief、立项诊断、PRD、竞品调研、优先级、评审会、复盘。quick-prototype（快速原型 v4.3.0）：六种设备形态的单文件可交互 HTML 原型，以及可打印的 HTML 报告。product-prototype-review：原型与业务功能说明的六维校验，输出带 P0/P1/P2 的评审报告。requirement-analysis：把需求拆成「系统—模块—功能组—操作—规则」五级结构并生成带追溯与待确认项的 Excel。axure-prd-docx：从 Axure 原型 + 五级需求表 + 文档模板生成带截图和「规则|说明」表格的 DOCX 需求文档。用法：直接说需求，例如「写个 PRD」「检查这个原型」「把需求拆成表」「根据原型出需求文档」，会按技能描述自动命中，不必输入 /技能名。技能正文、references 与 templates 都按需从本插件读取，未加载的文件不进上下文。axure-prd-docx 自带 Node 依赖（vendor/modules，约 3.7MB，无需 npm install），requirement-analysis 使用 DSH 自带 Python 运行时（含 openpyxl）。停用插件后五个技能立即从所有会话消失；插件自身不联网、不写盘、不自带模型工具。",
     "detail": "docs/DETAIL.zh.md"
   }
 }

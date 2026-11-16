@@ -1,0 +1,118 @@
+{
+  "_note": "示例 docspec：复制到工作目录后按项目改写。章节骨架、内容块语法与自检清单见 references/docx-structure.md。",
+  "meta": {
+    "title": "示例业务模块",
+    "subtitle": "需求文档",
+    "version": "V1.0",
+    "status": "评审中",
+    "date": "2026-01-01",
+    "scope": "适用范围：示例平台 Web 端 · 示例模块一 / 示例模块二",
+    "creator": "产品组",
+    "docTitle": "示例业务模块需求文档",
+    "docDescription": "示例业务模块需求文档 V1.0"
+  },
+  "layout": {
+    "font": "微软雅黑",
+    "bodySize": 21,
+    "imageMaxWidth": 585,
+    "imageMaxHeight": 900,
+    "kvWidths": [18, 82]
+  },
+  "revision": {
+    "headers": ["版本号", "修订日期", "修订人", "修订说明"],
+    "widths": [16, 20, 14, 50],
+    "rows": [
+      ["V1.0", "2026-01-01", "产品组", "首次发布，覆盖示例模块一、示例模块二"]
+    ]
+  },
+  "chapters": [
+    {
+      "title": "1 产品概述",
+      "sections": [
+        {
+          "title": "1.1 项目背景",
+          "blocks": [
+            { "type": "para", "text": "交代行业或政策背景，以及当前业务存在的具体问题，控制在 80~150 字。" },
+            { "type": "para", "text": "说明本项目要解决什么问题、在哪个平台基座之上扩展，控制在 80~150 字。" }
+          ]
+        },
+        {
+          "title": "1.2 业务场景",
+          "blocks": [
+            { "type": "para", "text": "本模块覆盖以下典型场景：" },
+            { "type": "bullets", "items": ["场景一：一句话说明能力", "场景二：一句话说明能力", "场景三：一句话说明能力"] }
+          ]
+        },
+        {
+          "title": "1.5 项目干系人",
+          "blocks": [
+            { "type": "table", "headers": ["角色", "职责"], "widths": [30, 70],
+              "rows": [["业务负责人", "确定范围与验收标准"], ["一线使用者", "日常操作与反馈"]] }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "2 系统说明",
+      "sections": [
+        {
+          "title": "2.1 相关术语",
+          "blocks": [
+            { "type": "table", "headers": ["术语", "说明"], "widths": [25, 75],
+              "rows": [["示例术语", "本文档中反复出现的专业词解释"]] }
+          ]
+        },
+        {
+          "title": "2.6 系统业务流程",
+          "blocks": [
+            { "type": "para", "text": "本模块遵循统一业务主线：" },
+            { "type": "numbered", "items": ["发现", "确认", "处置", "复盘"] }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "3 功能需求",
+      "sections": [
+        { "title": "3.1 版本目标", "blocks": [{ "type": "para", "text": "一句话说明本版本建成什么能力、达成什么闭环。" }] },
+        {
+          "title": "3.3 需求列表",
+          "blocks": [
+            {
+              "type": "reqTable",
+              "sheet": "需求分解",
+              "filter": { "column": 1, "values": ["示例模块一"] },
+              "columns": { "module": 1, "point": 2, "desc": 4, "version": 5 },
+              "versionDefault": "V1.0",
+              "headers": ["序号", "二级模块", "功能点", "需求说明", "版本"],
+              "widths": [6, 12, 14, 58, 10]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "4 功能说明",
+      "intro": ["本章按模块分页说明，每页顺序固定为：页面标题 → 原型截图 → 需求说明表格 → 子功能。"],
+      "modules": [
+        {
+          "title": "4.1 示例模块一",
+          "name": "示例模块一",
+          "desc": ["说明模块目标与覆盖的页面。"],
+          "flow": ["（1）进入页面", "（2）发起操作", "（3）查看结果"],
+          "rules": ["状态机、阈值、权限、边界各写一条。"],
+          "items": [
+            { "title": "首页看板", "key": "首页看板", "synth": "备注为空时的兜底功能描述。" },
+            { "title": "列表页", "key": "列表页" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "5 非功能需求",
+      "sections": [
+        { "title": "5.2 性能需求", "blocks": [{ "type": "bullets", "items": ["首屏 ≤ 2s", "列表分页 ≤ 500ms"] }] }
+      ]
+    }
+  ]
+}
