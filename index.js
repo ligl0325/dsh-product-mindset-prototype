@@ -20,6 +20,7 @@
  * so a project can pin its own copy of either skill.
  */
 
+import { watch } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -117,63 +118,109 @@ function resourceBaseOf(directory) {
  */
 export function apply(ctx) {
   const reported = new Map()
+  /** Set once the registry registers this provider; re-calling it is safe. */
+  let invalidate
   const warnOnce = (key, message) => {
     if (reported.get(key) === message) return
     reported.set(key, message)
     ctx.logger?.warn(`product-mindset-prototype: ${message}`)
   }
-  const register = control => ({
-    name: PROVIDER_NAME,
-    async list(options) {
-      const candidates = []
-      let complete = true
-      for (const directory of SKILL_DIRECTORIES) {
+  const register = control => {
+    invalidate = control.invalidate
+    return {
+      name: PROVIDER_NAME,
+      async list(options) {
+        const candidates = []
+        let complete = true
+        for (const directory of SKILL_DIRECTORIES) {
+          try {
+            const { path, skill } = await readSkill(directory, options.signal)
+            reported.delete(directory)
+            candidates.push({
+              name: skill.name,
+              description: skill.description,
+              ...(skill.whenToUse === undefined ? {} : { whenToUse: skill.whenToUse }),
+              invocation: skill.invocation,
+              provider: PROVIDER_NAME,
+              source: SOURCE,
+              rank: RANK,
+              resourceBase: resourceBaseOf(directory),
+              locator: { directory, path },
+            })
+          } catch (error) {
+            if (options.signal?.aborted === true) throw error
+            complete = false
+            const message = `${directory} is unavailable: ${errorMessage(error)}`
+            warnOnce(directory, message)
+            if (persistent(error)) control.invalidate()
+          }
+        }
+        return complete ? candidates : { candidates, complete }
+      },
+      async get(candidate, options) {
+        const directory = candidate.locator?.directory
         try {
           const { path, skill } = await readSkill(directory, options.signal)
-          reported.delete(directory)
-          candidates.push({
+          return {
             name: skill.name,
             description: skill.description,
             ...(skill.whenToUse === undefined ? {} : { whenToUse: skill.whenToUse }),
             invocation: skill.invocation,
             provider: PROVIDER_NAME,
             source: SOURCE,
-            rank: RANK,
             resourceBase: resourceBaseOf(directory),
-            locator: { directory, path },
-          })
+            path,
+            content: skill.content,
+          }
         } catch (error) {
-          if (options.signal?.aborted === true) throw error
-          complete = false
-          const message = `${directory} is unavailable: ${errorMessage(error)}`
-          warnOnce(directory, message)
-          if (persistent(error)) control.invalidate()
+          if (persistent(error)) return undefined
+          throw error
         }
-      }
-      return complete ? candidates : { candidates, complete }
-    },
-    async get(candidate, options) {
-      const directory = candidate.locator?.directory
-      try {
-        const { path, skill } = await readSkill(directory, options.signal)
-        return {
-          name: skill.name,
-          description: skill.description,
-          ...(skill.whenToUse === undefined ? {} : { whenToUse: skill.whenToUse }),
-          invocation: skill.invocation,
-          provider: PROVIDER_NAME,
-          source: SOURCE,
-          resourceBase: resourceBaseOf(directory),
-          path,
-          content: skill.content,
-        }
-      } catch (error) {
-        if (persistent(error)) return undefined
-        throw error
-      }
-    },
-  })
+      },
+    }
+  }
   ctx.skills.registerProvider(register)
+  watchSkillFiles(ctx, () => invalidate?.())
+}
+
+/**
+ * Invalidate the skill catalog when a shipped `SKILL.md` changes, so editing the
+ * frontmatter description takes effect without toggling the plugin. The skill
+ * directory is watched rather than the file, because editors usually save by
+ * writing a temporary file and renaming it over the original.
+ * @param {object} ctx context carrying `effect` and the logger.
+ * @param {() => void} invalidate registry invalidation for this provider.
+ */
+function watchSkillFiles(ctx, invalidate) {
+  if (typeof ctx.effect !== 'function') return
+  ctx.effect(() => {
+    const watchers = []
+    let timer
+    const notify = () => {
+      clearTimeout(timer)
+      timer = setTimeout(invalidate, 150)
+      timer.unref?.()
+    }
+    for (const directory of SKILL_DIRECTORIES) {
+      try {
+        const watcher = watch(join(SKILLS_DIR, directory), { persistent: false }, notify)
+        watcher.on('error', () => {})
+        watchers.push(watcher)
+      } catch (error) {
+        ctx.logger?.warn(`product-mindset-prototype: cannot watch ${directory} (${errorMessage(error)})`)
+      }
+    }
+    return () => {
+      clearTimeout(timer)
+      for (const watcher of watchers) {
+        try {
+          watcher.close()
+        } catch {
+          // A watcher that already closed itself needs no further teardown.
+        }
+      }
+    }
+  }, 'product-mindset-prototype skill files')
 }
 
 function persistent(error) {

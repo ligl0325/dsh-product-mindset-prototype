@@ -40,15 +40,27 @@ plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototyp
 
 装完后**开一个新会话**，或者直接在输入框敲 `/` 看命令菜单里有没有 `product-mindset` / `quick-prototype`。
 
-## 用法
+## 用法：直接说人话，不用敲技能名
 
-| 你怎么说 | 会发生什么 |
-|---|---|
-| `/product-mindset 我要写一份 B 端工单系统的轻量 PRD` | 直接加载产品心法，按路由读 `references/workflows/prd.md` + 一个 PRD 模板 |
-| `/quick-prototype 做一个会议室一体机的看板原型` | 直接加载快速原型，读 `templates-conference.md` 出单文件 HTML |
-| 不提技能名，只说「拆一下这个需求到可开发」 | 模型从技能描述里命中 `product-mindset`，自己加载 |
+DSH 的技能路由看的是每个技能 frontmatter 里的 `description`，跟技能名无关。正常说话就会命中：
 
-技能引用的 `references/`、`templates-*` 都跟着插件的 `resourceBase` 解析，相对路径照旧可用；**没被加载的文件不进上下文**。
+| 你说 | 命中 | 会发生什么 |
+|---|---|---|
+| 「写一份 B 端工单系统的轻量 PRD」「把需求整理成 PRD」 | `product-mindset` | 读 `references/workflows/prd.md` + 一个 PRD 模板 |
+| 「拆一下这个需求，拆到能开发」「这个功能值不值得做」 | `product-mindset` | 五级需求拆解 / 产品 Brief 工作流 |
+| 「调研一下竞品」「需求太多帮我砍范围」 | `product-mindset` | 竞品调研 / ICE、RRS |
+| 「做个会议室一体机的看板原型」「出个 demo 给我看」 | `quick-prototype` | 读 `templates-conference.md`，出单文件 HTML |
+| 「画个线框图」「做个界面稿」 | `quick-prototype` | 按设备形态选模板 |
+| 「把这份调研结论排成网页报告」 | `quick-prototype` | 报告模式（`report-html.md`） |
+
+### 关键词表（写进 `description` 的触发词）
+
+- **`product-mindset`**：PRD、需求、写需求、拆需求、需求分析、需求文档、功能清单、五级需求、用户故事、验收标准、立项、诊断、竞品、调研、优先级、ICE、RRS、砍范围、评审、会议纪要、复盘、值不值得做、要不要做、先做什么、怎么落地、政策转规则、边缘 AI / Agent
+- **`quick-prototype`**：原型、页面原型、交互原型、demo、演示、样机、mockup、线框图、草图、UI 预览、界面稿、看板大屏、会议大屏、签到屏、H5 页面、后台管理页面、HTML 报告
+
+`/product-mindset`、`/quick-prototype` 仍然可用（想强制指定时才需要）。命中范围不对时，改对应 `SKILL.md` 顶部的 `description` 就行——这是唯一的路由配置。
+
+技能引用的 `references/`、`templates-*` 跟着 `resourceBase` 解析，相对路径照旧可用；**没被加载的文件不进上下文**。
 
 ## 目录结构
 
@@ -106,7 +118,9 @@ npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 
 ## 维护
 
-- **只改技能内容**：直接覆盖 `skills/<技能名>/` 下的 Markdown，下次调用即生效，不用重装、不用重启。
+- **改技能内容**：直接覆盖 `skills/<技能名>/` 下的 Markdown，保存即生效——provider 每次读取都重新解析文件，并监听 `SKILL.md` 的变化主动刷新技能目录，不用重装、不用重启。
+- **改命中范围**：只改 `SKILL.md` 顶部 frontmatter 的 `description`（写用户会说的词），`name` 不要动。
+  本包对上游的 `description` 做了关键词增强：产品心法 v2.0.0、快速原型 v4.3.0 的原描述里没有「需求文档 / demo / 线框图」这类词，导致自动命不中。
 - **改 `index.js`**：ESM 模块会被进程缓存，需要重启 DSH 或重新安装插件才会加载新代码。
 - 改完把 `package.json` 的 `version` 加一，跑 `npm run check`。
 

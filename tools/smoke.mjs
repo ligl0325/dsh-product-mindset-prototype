@@ -18,11 +18,15 @@ import { apply, PROVIDER_NAME, RANK, SKILLS_DIR, parseSkill } from '../index.js'
 
 let factory
 const warnings = []
+const disposers = []
 apply({
   skills: {
     registerProvider(create) {
       factory = create
     },
+  },
+  effect(callback) {
+    disposers.push(callback())
   },
   logger: { warn: message => warnings.push(message) },
 })
@@ -65,8 +69,24 @@ for (const candidate of candidates) {
   }
 }
 
-const version = candidates.find(candidate => candidate.name === 'quick-prototype')
-assert.match(version.description, /报告/, 'the shipped quick-prototype must be v4.3.0 (report mode)')
+const mindset = candidates.find(candidate => candidate.name === 'product-mindset')
+const prototype = candidates.find(candidate => candidate.name === 'quick-prototype')
+assert.match(prototype.description, /报告/, 'the shipped quick-prototype must be v4.3.0 (report mode)')
+
+// Keyword routing: this catalog text is what makes the model load a skill by
+// itself instead of asking the user to type the skill name.
+for (const keyword of ['PRD', '需求', '拆需求', '立项', '竞品', '优先级', '复盘']) {
+  assert.ok(mindset.description.includes(keyword), `product-mindset description must mention "${keyword}"`)
+}
+for (const keyword of ['原型', 'demo', '线框图', 'mockup', '大屏', '报告']) {
+  assert.ok(prototype.description.includes(keyword), `quick-prototype description must mention "${keyword}"`)
+}
+
+assert.ok(disposers.length > 0, 'apply() must watch the shipped skill files')
+for (const dispose of disposers) {
+  assert.equal(typeof dispose, 'function', 'the watcher effect must return a teardown function')
+  dispose()
+}
 
 assert.deepEqual(warnings, [], `unexpected warnings: ${warnings.join('; ')}`)
 

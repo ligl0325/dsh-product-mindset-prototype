@@ -1,6 +1,6 @@
 {
   "name": "dsh-product-mindset-prototype",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Product management skill pack for DeepSeek Harness: product-mindset (产品心法 v2.0.0) and quick-prototype (快速原型 v4.3.0) shipped as one installable skill provider.",
   "type": "module",
   "repository": {
