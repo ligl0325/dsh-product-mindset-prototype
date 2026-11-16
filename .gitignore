@@ -4,3 +4,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.tgz
+
+# 本机信息，不进仓库
+NOTES.local.md
+*.local.md

@@ -9,15 +9,10 @@
 
 ## 安装
 
-**方式一：本地目录（本机最快）**
+**方式一：本地目录（已经 clone 下来时最快）**
 
-在 DSH 里打开 **Plugins**，选「添加插件 / Add plugin」，指向本目录：
-
-```
-<本仓库目录>
-```
-
-或让 Agent 执行：
+在 DSH 里打开 **Plugins**，选「添加插件 / Add plugin」，选中你 clone 出来的这个目录；
+或让 Agent 执行（把 `<本仓库目录>` 换成你自己的绝对路径）：
 
 ```js
 plugin_manager({ action: "install_bundle", target: "<本仓库目录>" })
@@ -92,8 +87,7 @@ DSH 的技能目录按"层"合并，**离 Agent 最近的层胜出，与 rank �
 `~/.agents/skills`、`~/.dsh/skills` 和项目 `.dsh/skills` 是由 **Agent 预设自带的 skill provider** 扫描的，
 属于比 Host 层更近的作用域，所以**这些目录里的同名技能会盖住插件版本**。
 
-- 装插件前先确认这些目录里没有同名副本。本机已把三个旧副本备份到
-  `<备份目录>` 并移出；
+- 装插件前先确认这些目录里没有同名副本；有的话先挪到别处备份，再装插件；
 - 想临时覆盖插件版本，把同名技能放进 `~/.agents/skills/<名字>/SKILL.md` 就行（这是 DSH 的正常语义，不是 bug）。
 
 ## 自检
@@ -124,20 +118,18 @@ npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 - `产品心法报告.html`、`重构实施计划.md`（开发过程产物）
 - `scripts/validate_package.py`（skill 作者自己的包校验脚本，本仓库用 `tools/validate.mjs` 代替）
 
-## 本机验证记录（2026-11-16）
+## 验证记录（2026-11-16）
 
 - `install_bundle` 返回 `application: applied`，`include:product-mindset-prototype` 行 `fiberPhase: active`；
 - 新会话技能目录出现 `product-mindset` / `quick-prototype`，描述分别是 v2.0.0 与 v4.3.0 的文案；
-- 加载 `quick-prototype` 时 `<skill_resources>` 指向
-  `<本仓库目录>/skills/quick-prototype`，正文为 v4.3.0（含 HTML 报告模式）；
+- 加载 `quick-prototype` 时 `<skill_resources>` 正确指向包内 `skills/quick-prototype`，正文为 v4.3.0（含 HTML 报告模式）；
 - 旧的三个散装副本（产品心法 v1.1、快速原型 v4.2.0、快速原型 v4.3.0 副本）已备份并移出 `~/.agents/skills`；
 - **未验证**：Plugins 面板里图标、标题、详情页的实际渲染（当前会话没有浏览器控制能力）。
   资源文件本身已通过 `validate.mjs` 校验。
 
 ## 卸载与回退
 
-插件里点停用或卸载即可。想回到散装方式，把
-`<备份目录>` 里的三个目录拷回 `~/.agents/skills/`。
+插件里点停用或卸载即可。想回到散装方式，把之前备份的三个技能目录拷回用户技能根 `~/.agents/skills/`。
 
 ## 许可
 
