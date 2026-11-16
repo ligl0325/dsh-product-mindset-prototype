@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Package self-check for dsh-plugin-product-skills.
+ * Package self-check for dsh-product-mindset-prototype.
  *
  * Verifies the bundle manifest, the patch row, display resources (locale files,
  * icon, optional detail document) and every shipped skill: frontmatter, unique

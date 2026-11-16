@@ -1,5 +1,5 @@
 /**
- * dsh-plugin-product-skills — 产品技能包 / product management skill pack.
+ * dsh-product-mindset-prototype — 产品技能包 / product management skill pack.
  *
  * Skill-only, host-only plugin: it registers no model tools and no client
  * modules. Its whole surface is the two Markdown skills under ./skills:
@@ -25,12 +25,12 @@ import { join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 /** Cordis plugin name. */
-export const name = 'product-skills'
+export const name = 'product-mindset-prototype'
 /** Service the provider registers on. */
 export const inject = ['skills']
 
 /** Provider name on `ctx.skills`; must not collide with DSH's own `filesystem`. */
-export const PROVIDER_NAME = 'product-skills'
+export const PROVIDER_NAME = 'product-mindset-prototype'
 
 /** Origin bucket reported in the skill catalog. */
 export const SOURCE = 'custom'
@@ -120,7 +120,7 @@ export function apply(ctx) {
   const warnOnce = (key, message) => {
     if (reported.get(key) === message) return
     reported.set(key, message)
-    ctx.logger?.warn(`product-skills: ${message}`)
+    ctx.logger?.warn(`product-mindset-prototype: ${message}`)
   }
   const register = control => ({
     name: PROVIDER_NAME,

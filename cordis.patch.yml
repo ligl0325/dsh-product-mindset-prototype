@@ -1,7 +1,7 @@
 # 产品技能包 / product skills — skill-only bundle for DeepSeek Harness.
-# One Host row mounts an isolated @deepseek-ai/dsh-skill-filesystem provider
-# that serves only this package's ./skills directory, so the two skills follow
-# this row's lifecycle: enabled here means present in every session's catalog.
+# One Host row registers its own ctx.skills provider over this package's
+# ./skills directory, so the two skills follow this row's lifecycle: enabled
+# here means present in every session's skill catalog.
 - insert:
-    - id: product-skills
-      name: 'dsh-plugin-product-skills'
+    - id: product-mindset-prototype
+      name: 'dsh-product-mindset-prototype'

@@ -1,4 +1,4 @@
-# 产品技能包 · dsh-plugin-product-skills
+# 产品技能包 · dsh-product-mindset-prototype
 
 把两个产品经理 skill 打成一个 DeepSeek Harness 插件，**装完即生效**，不用再往 `~/.agents/skills` 里散装复制。
 
@@ -33,14 +33,14 @@ plugin_manager({ action: "install_bundle", target: "github:ligl0325/dsh-product-
 
 在 **Plugins → 添加插件** 里填 `github:ligl0325/dsh-product-mindset-prototype` 也可以。
 
-> 仓库名是 `dsh-product-mindset-prototype`，包名是 `dsh-plugin-product-skills`——GitHub 安装认的是仓库里的
-> `package.json`，两者不一致没关系；改仓库名/包名时记得同步这一节。
+> 仓库名、包名、行 id 现在统一为 `dsh-product-mindset-prototype`。改名要同步这四处：
+> `package.json` 的 `name`、`cordis.patch.yml` 的行 `name`、`index.js` 的插件名与 provider 名、以及本节的三条安装命令。
 
 **方式三：npm（可选，需要你的 npm 账号）**
 
 ```sh
 npm publish
-plugin_manager({ action: "install_bundle", target: "dsh-plugin-product-skills" })
+plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototype" })
 ```
 
 装完后**开一个新会话**，或者直接在输入框敲 `/` 看命令菜单里有没有 `product-mindset` / `quick-prototype`。
@@ -58,9 +58,9 @@ plugin_manager({ action: "install_bundle", target: "dsh-plugin-product-skills" }
 ## 目录结构
 
 ```
-dsh-product-skills/
+dsh-product-mindset-prototype/
 ├── package.json          # dsh.bundle.patch 声明，exports 暴露 . / ./icon / ./locale
-├── cordis.patch.yml      # 插入 1 行：product-skills
+├── cordis.patch.yml      # 插入 1 行：product-mindset-prototype
 ├── index.js              # 自带 skill provider，只读本包 skills/
 ├── skills/
 │   ├── product-mindset/  # SKILL.md + references/(13) + templates/(7)
@@ -126,10 +126,10 @@ npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 
 ## 本机验证记录（2026-11-16）
 
-- `install_bundle` 返回 `application: applied`，`include:product-skills` 行 `fiberPhase: active`；
+- `install_bundle` 返回 `application: applied`，`include:product-mindset-prototype` 行 `fiberPhase: active`；
 - 新会话技能目录出现 `product-mindset` / `quick-prototype`，描述分别是 v2.0.0 与 v4.3.0 的文案；
 - 加载 `quick-prototype` 时 `<skill_resources>` 指向
-  `G:/user/Documents/产品/dsh-product-skills/skills/quick-prototype`，正文为 v4.3.0（含 HTML 报告模式）；
+  `<本仓库目录>/skills/quick-prototype`，正文为 v4.3.0（含 HTML 报告模式）；
 - 旧的三个散装副本（产品心法 v1.1、快速原型 v4.2.0、快速原型 v4.3.0 副本）已备份并移出 `~/.agents/skills`；
 - **未验证**：Plugins 面板里图标、标题、详情页的实际渲染（当前会话没有浏览器控制能力）。
   资源文件本身已通过 `validate.mjs` 校验。

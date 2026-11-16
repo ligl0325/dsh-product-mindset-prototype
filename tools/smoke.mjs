@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Contract smoke test for dsh-plugin-product-skills.
+ * Contract smoke test for dsh-product-mindset-prototype.
  *
  * Runs `apply()` against a stub `ctx.skills` registry and checks that both
  * shipped skills are listed and loadable with the shape DSH's skill registry
