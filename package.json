@@ -1,7 +1,7 @@
 {
   "name": "dsh-product-mindset-prototype",
   "version": "2.0.0",
-  "description": "Product management skill pack for DeepSeek Harness: product-mindset, quick-prototype, product-prototype-review, requirement-analysis and axure-prd-docx shipped as one installable skill provider.",
+  "description": "Product management skill pack for DeepSeek Harness: product-mindset, quick-prototype, product-prototype-review, requirement-analysis, axure-prd-docx and spec-driven-prototype shipped as one installable skill provider.",
   "type": "module",
   "repository": {
     "type": "git",
@@ -52,7 +52,11 @@
     "requirement",
     "prototype",
     "产品经理",
-    "原型"
+    "原型",
+    "spec-driven",
+    "字段对齐",
+    "后台原型",
+    "legacy-migration"
   ],
   "license": "MIT"
 }

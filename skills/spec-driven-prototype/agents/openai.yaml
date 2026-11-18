@@ -1,0 +1,4 @@
+interface:
+  display_name: "规格驱动原型"
+  short_description: "把需求规格变成不会漂移的多页后台原型，字段与老系统逐字一致"
+  default_prompt: "使用 $spec-driven-prototype 按这份需求规格生成后台原型；字段请与老系统界面逐字一致，并用生成器产出、不要手写。"

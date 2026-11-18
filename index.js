@@ -10,6 +10,7 @@
  *   product-prototype-review                 原型与业务说明校验
  *   requirement-analysis                     五级需求拆解 → Excel
  *   axure-prd-docx                           Axure 原型 → DOCX 需求文档
+ *   spec-driven-prototype                    规格驱动原型 v1.0.0 — 规格 → 不漂移的多页后台原型（字段与来源系统逐字一致）
  *
  * The plugin registers its own `ctx.skills` provider instead of mounting
  * `@deepseek-ai/dsh-skill-filesystem`, because a bundle installed from a local

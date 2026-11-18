@@ -1,11 +1,12 @@
 # 产品技能包 · dsh-product-mindset-prototype
 
-把五个产品经理技能打成一个 DeepSeek Harness 插件，**装完直接说人话就能用**，不用敲 `/技能名`，也不用往 `~/.agents/skills` 里散装复制。
+把六个产品经理技能打成一个 DeepSeek Harness 插件，**装完直接说人话就能用**，不用敲 `/技能名`，也不用往 `~/.agents/skills` 里散装复制。
 
 | 技能 | 一句话 | 运行时 |
 |---|---|---|
 | `product-mindset` | 产品心法 v2.0.0：方法论与文档路由器，先判断意图，再只加载 1 个工作流 + 至多 1 个模板 | 纯 Markdown |
 | `quick-prototype` | 快速原型 v4.3.0：六种设备形态的单文件可交互 HTML 原型 + 可打印 HTML 报告 | 纯 Markdown |
+| `spec-driven-prototype` | 规格驱动原型 v1.0.0：需求规格 → 多页后台原型工程（Vue 3），字段由规格生成、与来源系统逐字一致 | Node（无第三方依赖）+ Python（仅标准库，抽字段） |
 | `product-prototype-review` | 原型与业务功能说明的六维校验，输出 P0/P1/P2 评审报告 | 纯 Markdown |
 | `requirement-analysis` | 五级需求拆解（系统—模块—功能组—操作—规则）→ 带追溯、待确认项、问题汇总的 Excel | Python（`openpyxl`，DSH 自带） |
 | `axure-prd-docx` | Axure 原型 + 五级需求表 + 文档模板 → 带截图和「规则｜说明」表格的 DOCX 需求文档 | Node + 无头 Chrome（依赖已内置） |
@@ -38,7 +39,7 @@ npm publish
 plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototype" })
 ```
 
-装完后**开一个新会话**，或者直接在输入框敲 `/` 看命令菜单里有没有这五个技能。
+装完后**开一个新会话**，或者直接在输入框敲 `/` 看命令菜单里有没有这六个技能。
 
 ## 场景一：这个方向到底能不能做
 
@@ -106,6 +107,8 @@ plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototyp
 得到什么：**单个 HTML 文件**，双击就能在浏览器打开，无 CDN 依赖；按设备形态自动选骨架（Web 后台 / H5 / 原生 APP / PC 桌面 / 嵌入式小屏 / 会议一体机），
 按业务领域自动选风格（企业管理偏瑞士风、工业偏 HUD 深色、医疗偏无障碍浅色……），并且强制过一遍"反 AI 审美"检查（不给你紫色渐变 + 三列等宽卡片那种一眼假的东西）。
 
+> 边界：`quick-prototype` 出的是**一个 HTML 文件**；要**多页前端工程**、字段必须跟老系统/规格逐字对齐时，用 `spec-driven-prototype`（见场景九）。
+
 ## 场景六：原型评审
 
 > 设计给的稿子要过评审，或者自己做的原型想先自查一遍。
@@ -145,9 +148,27 @@ plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototyp
 
 得到什么：7 / 30 / 90 天价值验证框架——目标达成、实际数据、偏差原因、下一步动作，避免复盘写成流水账。
 
+## 场景九：老系统迁移，要一套字段对得上的后台原型
+
+> 客户有个用了十年的订单/台账老系统，要迁到新系统，最怕上线时字段对不上账。
+
+你怎么说：
+
+- 「字段要跟老系统一模一样，不能漂移」
+- 「按这份需求规格出一套能点的多页后台原型」
+- 「原型和需求文档必须一致，改规格原型要跟着变」
+- 「明细行字段太多放不下，列要能自己配」
+
+得到什么：一套多页可运行的前端工程（Vue 3）——列表 / 详情 / 建单三套页面模板 + 查询条 / 表单块 / 可配置表格 / 列配置抽屉四个通用组件；
+页面上的字段、枚举、必填、明细列**全部由规格生成**（`gen-fields.mjs`，不手写），老系统界面先用 `extract-legacy-fields.py` 抽成结构化字段表，
+字段名、枚举取值甚至错别字都照抄来源系统；再跑 `check-spec.mjs` 做规格自检（含旧口径词为 0）、`audit-prototype.mjs` 做原型审计（四态齐全、交互落地、没有手写字段），
+最后 `shoot.mjs` 用本机 Chrome 逐屏截图验收。
+
+> 边界：要**一个 HTML 文件**的演示原型用 `quick-prototype`；要**多页工程 + 字段由规格驱动**才用它。
+
 ## 串起来用：一条真实链路
 
-新需求从 0 到交付，五个技能可以接力，每一步都是普通对话：
+新需求从 0 到交付，六个技能可以接力，每一步都是普通对话：
 
 ```text
 1. 「这个方向值不值得做」                  → 产品 Brief，先拿做/不做的结论
@@ -155,19 +176,22 @@ plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototyp
 3. 「写一份轻量 PRD」                      → 分级 PRD，含字段与验收标准
 4. 「把 P0 拆成五级需求，出 Excel」         → 需求分解表，待确认项一次问清
 5. 「做个后台看板原型，能点进去看详情」      → 单文件 HTML，直接演示
-6. 「检查这个原型，和需求对不对得上」        → 评审报告，P0 问题先修
-7. 「根据原型和需求表出 Word 需求文档」      → 可评审/可归档的 DOCX
-8. 「上线一个月了，帮我复盘」               → 7/30/90 天价值验证
+6. 「按规格出一套字段对得上的多页后台」      → 规格驱动的 Vue 工程，字段不漂移
+7. 「检查这个原型，和需求对不对得上」        → 评审报告，P0 问题先修
+8. 「根据原型和需求表出 Word 需求文档」      → 可评审/可归档的 DOCX
+9. 「上线一个月了，帮我复盘」               → 7/30/90 天价值验证
 ```
 
 技能之间会自动按描述切换，不用手动点名；想强制指定某个技能时用 `/product-mindset`、`/quick-prototype` 这类命令。
 
-## 五个技能的边界（避免互相抢词）
+## 六个技能的边界（避免互相抢词）
 
 - `product-mindset` 只管**方法论与文档写法**，不产 Excel 表格、不评原型；
-- `requirement-analysis` **独占**「拆需求 / 五级需求 / 需求分解表 / Excel」；
-- `quick-prototype` **只生成**原型，不评；
-- `product-prototype-review` **只评审**原型与业务说明；
+- `requirement-analysis` **独占**「拆需求 / 五级需求 / 需求分解表 / Excel」，只出表、不出原型；
+- `quick-prototype` **只生成**原型，不评，且**单文件 HTML 归它**（一个文件、双击能开、不用构建）；
+- `spec-driven-prototype` **只做多页前端工程 + 规格驱动的字段**：字段、枚举、必填、明细列由规格生成，与来源系统逐字一致，出的是 Vue 3 多页工程。
+  同样一句「做个后台原型」，**要一个文件用 `quick-prototype`，要一套字段对得上的工程用 `spec-driven-prototype`**；
+- `product-prototype-review` **只评审**原型与业务说明（单文件、多页工程、Axure 目录都能评），只出报告不改文件；
 - `axure-prd-docx` 负责**最终 Word 交付物**（截图 + 需求表格）。
 
 想改某个技能的命中范围：改它 `SKILL.md` 顶部的 `description`（写用户会说的词），保存后下一次请求就按新词路由。
@@ -182,7 +206,8 @@ dsh-product-mindset-prototype/
 │   ├── quick-prototype/                         # SKILL.md + design-rules + report-html + templates-*(6)
 │   ├── product-prototype-review/                # SKILL.md（自包含，无外部依赖）
 │   ├── requirement-analysis/                    # SKILL.md + references(2) + scripts/requirement_workbook.py
-│   └── axure-prd-docx/                          # SKILL.md + scripts(4) + references + assets + vendor/modules
+│   ├── axure-prd-docx/                          # SKILL.md + scripts(4) + references + assets + vendor/modules
+│   └── spec-driven-prototype/                   # SKILL.md + references(6) + scripts(5) + templates(页面 3 / 组件 4 / cfg.example.json)
 ├── locale/en.json  locale/zh.json               # Plugins 面板里的标题/说明
 ├── docs/DETAIL.md  docs/DETAIL.zh.md  docs/preview.svg
 ├── icon.svg
@@ -199,7 +224,7 @@ dsh-product-mindset-prototype/
   所以 `references/…`、`templates-*.md` 的相对引用照常可读；
 - **只用 Node 内置模块**，不依赖任何 npm 包；
 - 监听 `skills/` 的文件变化并主动刷新技能目录：改描述、改正文下一次请求即生效；
-- provider 随插件行卸载：**停用插件 = 五个技能立刻从所有会话消失**；
+- provider 随插件行卸载：**停用插件 = 六个技能立刻从所有会话消失**；
 - rank 用 300（等同文件系统 custom 根）。rank 只在**同一层内**比较：项目 100 < runtime 250 < custom 300 < 用户根 400/500 < 内置 600。
 
 ### ⚠️ 优先级须知
@@ -217,6 +242,10 @@ DSH 的技能目录按「层」合并，**离 Agent 最近的层胜出，与 ran
   - `docx` / `jszip` / `xml-js` 已内置在 `skills/axure-prd-docx/vendor/modules/`（约 3.7MB，已裁剪到运行必需文件），
     脚本会自动找到，**不需要 `npm install`**；
   - 截图需要本机 Chrome 或 Edge（`capture.js` 自动探测，可用 `CHROME_PATH` 强制指定）。
+- `spec-driven-prototype`：
+  - Node 用 `load_workspace_dependencies` 返回的 `node`；`scripts/*.mjs` **只用 Node 内置模块**，不需要 `npm install`；
+  - 抽字段 `scripts/extract-legacy-fields.py` 用同一个 `python`（只用标准库）；
+  - 逐屏截图 `scripts/shoot.mjs` 需要本机 Chrome 或 Edge（自动探测，可用 `CHROME_PATH` 指定），并依赖 Node 22+ 的内置 WebSocket。
 
 ## 自检与维护
 
@@ -225,8 +254,8 @@ npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 ```
 
 - `validate.mjs`：manifest、patch 行、locale、图标、每个 skill 的 frontmatter 与相对链接是否都有目标文件。
-- `smoke.mjs`：用假 `ctx` 跑一遍 `apply()`，断言五个技能都能列出/加载、字段符合 DSH 注册表校验，
-  并且五个技能的关键词路由词还在（改描述把词改没了会直接报错）。
+- `smoke.mjs`：用假 `ctx` 跑一遍 `apply()`，断言六个技能都能列出/加载、字段符合 DSH 注册表校验，
+  并且六个技能的关键词路由词还在（改描述把词改没了会直接报错）。
 
 维护要点：
 
@@ -240,7 +269,9 @@ npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 
 - `axure-prd-docx` 的「截图 → 内容模型 → DOCX」全流程尚未在真实 Axure 工程上做过端到端验收，
   目前验证到的是脚本与内置依赖可正常出文档；
-- 五个技能都依赖模型按描述选技能，描述写得含糊就会选偏——命中不准时优先改 `description`。
+- `spec-driven-prototype` 的字段生成需要一个项目配置文件：`templates/cfg.example.json` 只是示例（取自参考项目），
+  复制成自己的 `cfg.json` 后要改 `pageSource` / `pageAlias` / `sourceRoles` / `blocks` / `lineSets`——页面映射不到时脚本直接报错，不猜；
+- 六个技能都依赖模型按描述选技能，描述写得含糊就会选偏——命中不准时优先改 `description`。
 
 ## 许可
 

@@ -38,7 +38,7 @@ assert.equal(provider.name, PROVIDER_NAME)
 const observation = await provider.list({})
 const candidates = Array.isArray(observation) ? observation : observation.candidates
 assert.equal(Array.isArray(observation) ? true : observation.complete, true, 'discovery must be complete')
-assert.equal(candidates.length, 5, `expected five skills, got ${candidates.length}`)
+assert.equal(candidates.length, 6, `expected six skills, got ${candidates.length}`)
 
 const names = candidates.map(candidate => candidate.name).sort()
 assert.deepEqual(names, [
@@ -47,6 +47,7 @@ assert.deepEqual(names, [
   'product-prototype-review',
   'quick-prototype',
   'requirement-analysis',
+  'spec-driven-prototype',
 ])
 
 for (const candidate of candidates) {
