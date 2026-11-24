@@ -13,16 +13,10 @@
 
 ## 安装
 
-**方式一：本地目录（已经 clone 下来时最快）**
+> 推荐用 **GitHub 方式**：装进去的是某个具体 commit 的正式包，目录改名、换盘、删掉本地仓库都不影响运行，
+> 而且你和同事跑的是同一份代码。
 
-在 DSH 里打开 **Plugins**，选「添加插件 / Add plugin」，选中你 clone 出来的这个目录；
-或让 Agent 执行（把 `<本仓库目录>` 换成你自己的绝对路径）：
-
-```js
-plugin_manager({ action: "install_bundle", target: "<本仓库目录>" })
-```
-
-**方式二：GitHub（发给同事用，不用传文件）**
+**方式一：GitHub（推荐，发给同事也用这个）**
 
 仓库：<https://github.com/ligl0325/dsh-product-mindset-prototype>
 
@@ -32,14 +26,59 @@ plugin_manager({ action: "install_bundle", target: "github:ligl0325/dsh-product-
 
 在 **Plugins → 添加插件** 里填 `github:ligl0325/dsh-product-mindset-prototype` 也可以。
 
-**方式三：npm（可选，需要你的 npm 账号）**
+装好后 `pnpm-lock.yaml` 会把版本钉在解析到的那个 commit 上（形如 `.../tar.gz/<commit>`），
+也就是说**装的是快照，不会自己跟着 main 漂**；要更新见下面「更新流程与协作约定」。
 
-```sh
-npm publish
-plugin_manager({ action: "install_bundle", target: "dsh-product-mindset-prototype" })
+**方式二：本地目录 link（只给开发期用）**
+
+在 DSH 里打开 **Plugins**，选「添加插件」，选中你 clone 出来的这个目录；或让 Agent 执行
+（把 `<本仓库目录>` 换成你自己的绝对路径）：
+
+```js
+plugin_manager({ action: "install_bundle", target: "<本仓库目录>" })
 ```
 
+它会被记成 `link:<目录>`，改本地文件立即生效——调试时方便，**但目录一改名或挪盘，插件就直接失效**。
+所以调完记得切回方式一。
+
+**方式三：tarball（对方不方便用 git 时）**
+
+```sh
+pnpm pack        # 产出 dsh-product-mindset-prototype-<version>.tgz
+```
+
+```js
+plugin_manager({ action: "install_bundle", target: "file:<tgz 的绝对路径>" })
+```
+
+**方式四：npm（本仓库暂未发布）**
+
+目前**没有发布到 npm**，所以不要指望 `install_bundle dsh-product-mindset-prototype` 能装到。
+要发布得先 `npm login` 再 `npm publish`；而新版 npm 的登录必须经过 npmjs.com 网站，
+访问不了该网站的环境（如部分内网/受限网络）登录会直接失败。这种情况下用方式一或方式三。
+
 装完后**开一个新会话**，或者直接在输入框敲 `/` 看命令菜单里有没有这六个技能。
+
+## 更新流程与协作约定
+
+本仓库只认 **GitHub 一个源头**，本地**只保留一个工作副本**。
+
+- 工作副本只留一份。另存一份完整克隆（带 `.git`）很容易变成两条提交线，改着改着就分叉了；
+  需要第二份就重新 clone，别复制目录。
+- 更新流程固定三步：改 → 提交推送 → 重新安装，把锁定的 commit 前移：
+
+```sh
+git add -A && git commit -m "..." && git push
+```
+
+```js
+plugin_manager({ action: "install_bundle", target: "github:ligl0325/dsh-product-mindset-prototype" })
+```
+
+- 想把锁文件显式钉到某个提交：`github:ligl0325/dsh-product-mindset-prototype#<commit>`；
+- 判断本机装的和仓库是不是同一版：比对 `pnpm-lock.yaml` 里的 `codeload.github.com/.../tar.gz/<commit>`
+  与本仓库的 `git rev-parse HEAD`，两者一致就说明线上线下一套；
+- 调试期想「改了就生效」：临时切成方式二的 `link:<目录>`，调完再切回方式一。
 
 ## 场景一：这个方向到底能不能做
 
@@ -260,10 +299,11 @@ npm run check     # = node tools/validate.mjs && node tools/smoke.mjs
 维护要点：
 
 - **加技能**：`skills/` 下新建目录放 `SKILL.md`，跑 `npm run check`，代码不用动；
-- **改技能内容**：直接覆盖 Markdown，保存即生效；
+- **改技能内容**：覆盖 Markdown 即可，但**生效时机取决于安装方式**——`link:` 安装是保存即生效；
+  `github:` 安装要 `commit && push` 后重新安装一次（见「更新流程与协作约定」）；
 - **改命中范围**：只改 `SKILL.md` 顶部的 `description`；
 - **改 `index.js`**：ESM 模块会被进程缓存，需要重启 DSH 或停用/启用插件；
-- 改完把 `package.json` 的 `version` 加一。
+- 改完把 `package.json` 的 `version` 加一，并在提交信息里写清改了哪个技能。
 
 ## 已知限制
 
