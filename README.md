@@ -65,17 +65,24 @@ plugin_manager({ action: "install_bundle", target: "file:<tgz 的绝对路径>" 
 
 - 工作副本只留一份。另存一份完整克隆（带 `.git`）很容易变成两条提交线，改着改着就分叉了；
   需要第二份就重新 clone，别复制目录。
-- 更新流程固定三步：改 → 提交推送 → 重新安装，把锁定的 commit 前移：
+- 更新流程固定三步：改 → 提交推送 → 重装，把锁定的 commit 前移：
 
 ```sh
 git add -A && git commit -m "..." && git push
 ```
 
+  ⚠️ 注意：**同一个 `github:` spec 再装一次会被判 `already-installed`，锁文件里的 commit 不会前移**。
+  要让本机真的跟上新提交，必须「先卸再装」，或者把提交号直接写进 spec：
+
 ```js
+// ① 先卸再装（spec 保持干净，推荐）
+plugin_manager({ action: "remove_bundle", target: "dsh-product-mindset-prototype" })
 plugin_manager({ action: "install_bundle", target: "github:ligl0325/dsh-product-mindset-prototype" })
+
+// ② 或直接钉到指定提交（确定性更强，spec 里会带 #commit）
+plugin_manager({ action: "install_bundle", target: "github:ligl0325/dsh-product-mindset-prototype#<commit>" })
 ```
 
-- 想把锁文件显式钉到某个提交：`github:ligl0325/dsh-product-mindset-prototype#<commit>`；
 - 判断本机装的和仓库是不是同一版：比对 `pnpm-lock.yaml` 里的 `codeload.github.com/.../tar.gz/<commit>`
   与本仓库的 `git rev-parse HEAD`，两者一致就说明线上线下一套；
 - 调试期想「改了就生效」：临时切成方式二的 `link:<目录>`，调完再切回方式一。
